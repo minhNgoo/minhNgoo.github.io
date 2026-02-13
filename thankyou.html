@@ -7,32 +7,30 @@
     <link rel="stylesheet" href="css/lastpage.css" />
 
     <style>
-      /* Floating layer sits on top but doesn't block clicks */
+      /* Floating layer in the background */
       #float-layer {
         position: fixed;
         inset: 0;
         pointer-events: none;
         overflow: hidden;
-        z-index: 5;
+        z-index: 0; /* behind content */
       }
 
-      /* Wrap main image so we can locate it */
-      .main-wrap {
+      /* Keep your page content above the float layer */
+      body > *:not(#float-layer) {
         position: relative;
-        display: inline-block;
         z-index: 1;
       }
 
       .float-img {
-        position: fixed;          /* position relative to viewport */
-        width: 60px;              /* default size; JS will vary it */
+        position: fixed;
         height: auto;
         opacity: 0.95;
         will-change: transform, opacity;
         animation: floatUp linear forwards;
         user-select: none;
         pointer-events: none;
-        z-index: 6;
+        z-index: 0;
       }
 
       @keyframes floatUp {
@@ -40,9 +38,11 @@
           transform: translateY(0) translateX(0) rotate(0deg);
           opacity: 0;
         }
-        10% { opacity: 0.95; }
+        10% {
+          opacity: 0.95;
+        }
         to {
-          transform: translateY(-120vh) translateX(var(--drift)) rotate(var(--rot));
+          transform: translateY(-130vh) translateX(var(--drift)) rotate(var(--rot));
           opacity: 0;
         }
       }
@@ -54,9 +54,7 @@
 
     <div id="float-layer"></div>
 
-    <div class="main-wrap">
-      <img id="rizz" src="dance.gif" alt="dance mice" class="responsive" />
-    </div>
+    <img id="rizz" src="dance.gif" alt="dance mice" class="responsive" />
 
     <br />
     <audio controls autoplay loop>
@@ -68,42 +66,28 @@
 
     <script>
       const layer = document.getElementById("float-layer");
-      const mainImg = document.getElementById("rizz");
-
-      const floatSources = ["mouse_ballon.jpg", "heart.jpg"];
+      const floatSources = ["mouse_ballon.png", "heart.png"];
 
       function rand(min, max) {
         return Math.random() * (max - min) + min;
       }
 
       function spawnFloat() {
-        const rect = mainImg.getBoundingClientRect();
-
-        // Choose left or right side of main image
-        const side = Math.random() < 0.5 ? "left" : "right";
-
-        // Spawn x near the image side, with a little randomness
-        const gap = rand(15, 40); // distance from image edge
-        const xBase = side === "left" ? rect.left - gap : rect.right + gap;
-
-        // Keep within viewport a bit
-        const xJitter = rand(-30, 30);
-        let x = xBase + xJitter;
-        x = Math.max(10, Math.min(window.innerWidth - 70, x));
-
-        // Spawn y somewhere along the image height (or slightly below)
-        let y = rect.top + rand(0, rect.height);
-        y = Math.max(10, Math.min(window.innerHeight - 70, y));
-
         const el = document.createElement("img");
         el.src = floatSources[Math.floor(Math.random() * floatSources.length)];
         el.className = "float-img";
 
-        // Random size, duration, drift, rotation
-        const size = rand(35, 75);            // px
-        const duration = rand(5.5, 10.5);     // seconds
-        const drift = `${rand(-40, 40).toFixed(0)}px`;
-        const rot = `${rand(-35, 35).toFixed(0)}deg`;
+        // BIGGER sizes
+        const size = rand(90, 170);        // px (increase if you want bigger)
+        const duration = rand(7, 14);      // seconds
+        const drift = `${rand(-90, 90).toFixed(0)}px`;
+        const rot = `${rand(-25, 25).toFixed(0)}deg`;
+
+        // Spawn anywhere across the screen
+        const x = rand(0, Math.max(0, window.innerWidth - size));
+
+        // Start in the lower half so it floats upward across the screen
+        const y = rand(window.innerHeight * 0.55, window.innerHeight + 40);
 
         el.style.width = `${size}px`;
         el.style.left = `${x}px`;
@@ -113,22 +97,14 @@
         el.style.setProperty("--rot", rot);
 
         layer.appendChild(el);
-
-        // Remove when done
         setTimeout(() => el.remove(), (duration + 0.5) * 1000);
       }
 
-      // Spawn a few immediately
-      for (let i = 0; i < 8; i++) spawnFloat();
+      // Spawn a bunch immediately
+      for (let i = 0; i < 12; i++) spawnFloat();
 
-      // Then keep spawning
-      setInterval(spawnFloat, 700);
-
-      // Reposition nicely if user resizes
-      window.addEventListener("resize", () => {
-        // optional: clear existing floaters on resize
-        // layer.innerHTML = "";
-      });
+      // Keep spawning
+      setInterval(spawnFloat, 600);
     </script>
   </body>
 </html>
