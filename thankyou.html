@@ -112,4 +112,23 @@
         el.style.setProperty("--drift", drift);
         el.style.setProperty("--rot", rot);
 
-        layer.appe
+        layer.appendChild(el);
+
+        // Remove when done
+        setTimeout(() => el.remove(), (duration + 0.5) * 1000);
+      }
+
+      // Spawn a few immediately
+      for (let i = 0; i < 8; i++) spawnFloat();
+
+      // Then keep spawning
+      setInterval(spawnFloat, 700);
+
+      // Reposition nicely if user resizes
+      window.addEventListener("resize", () => {
+        // optional: clear existing floaters on resize
+        // layer.innerHTML = "";
+      });
+    </script>
+  </body>
+</html>
