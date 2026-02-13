@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <style>
-    body { cursor: url("cursor.cur"), auto !important; }
+      body { cursor: url("cursor.cur"), auto !important; }
     </style>
 
     <meta charset="UTF-8" />
@@ -19,7 +19,6 @@
     <button class="answerButton" id="noButton">No i hate you</button>
     <br />
 
-    <!-- default image -->
     <img
       id="mainImg"
       src="sad_mouse.jpg"
@@ -32,7 +31,6 @@
       const yesBtn = document.getElementById("yesButton");
       const noBtn = document.getElementById("noButton");
 
-      // default (no hover)
       const defaultImg = "sad_mouse.jpg";
 
       yesBtn.addEventListener("mouseenter", () => {
@@ -49,10 +47,46 @@
         img.src = defaultImg;
       });
 
-      // keep your existing "no button makes yes bigger" behavior
+      // Prevent scrollbars when spawning images near edges (optional)
+      document.body.style.overflow = "hidden";
+
+      function spawnRandomMouse() {
+        const m = document.createElement("img");
+        m.src = "autismo_mouse.png"; // make sure this file is in the repo root
+        m.alt = "mouse";
+        m.style.position = "fixed";
+        m.style.width = "90px";        // change size if you want
+        m.style.height = "auto";
+        m.style.zIndex = "9999";
+        m.style.pointerEvents = "none";
+        m.style.userSelect = "none";
+
+        // Random position within viewport
+        const padding = 10;
+        const size = 90; // match width above
+        const maxX = Math.max(padding, window.innerWidth - size - padding);
+        const maxY = Math.max(padding, window.innerHeight - size - padding);
+
+        const x = Math.floor(Math.random() * (maxX - padding + 1)) + padding;
+        const y = Math.floor(Math.random() * (maxY - padding + 1)) + padding;
+
+        // Optional: random rotation / scale
+        const rot = Math.floor(Math.random() * 60) - 30; // -30..30
+        const scale = 0.7 + Math.random() * 0.8;         // 0.7..1.5
+        m.style.transform = `rotate(${rot}deg) scale(${scale})`;
+
+        m.style.left = `${x}px`;
+        m.style.top = `${y}px`;
+
+        document.body.appendChild(m);
+      }
+
+      // NO click: make YES bigger + spawn random mouse
       noBtn.addEventListener("click", function () {
         const currentFontSize = parseInt(window.getComputedStyle(yesBtn).fontSize);
         yesBtn.style.fontSize = currentFontSize + 10 + "px";
+
+        spawnRandomMouse();
       });
     </script>
   </body>
