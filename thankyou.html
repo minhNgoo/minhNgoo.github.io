@@ -5,17 +5,111 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Thank you</title>
     <link rel="stylesheet" href="css/lastpage.css" />
+
+    <style>
+      /* Floating layer sits on top but doesn't block clicks */
+      #float-layer {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+        z-index: 5;
+      }
+
+      /* Wrap main image so we can locate it */
+      .main-wrap {
+        position: relative;
+        display: inline-block;
+        z-index: 1;
+      }
+
+      .float-img {
+        position: fixed;          /* position relative to viewport */
+        width: 60px;              /* default size; JS will vary it */
+        height: auto;
+        opacity: 0.95;
+        will-change: transform, opacity;
+        animation: floatUp linear forwards;
+        user-select: none;
+        pointer-events: none;
+        z-index: 6;
+      }
+
+      @keyframes floatUp {
+        from {
+          transform: translateY(0) translateX(0) rotate(0deg);
+          opacity: 0;
+        }
+        10% { opacity: 0.95; }
+        to {
+          transform: translateY(-120vh) translateX(var(--drift)) rotate(var(--rot));
+          opacity: 0;
+        }
+      }
+    </style>
   </head>
+
   <body>
     <div id="thankyou"><b>Thank you</b></div>
 
-    <img id="rizz" src="dance.gif" alt="dance mice" class="responsive" />
+    <div id="float-layer"></div>
+
+    <div class="main-wrap">
+      <img id="rizz" src="dance.gif" alt="dance mice" class="responsive" />
+    </div>
+
     <br />
     <audio controls autoplay loop>
       <source src="congratulations.mp3" type="audio/mpeg" />
       Your browser does not support the audio element.
     </audio>
+
     <h1>Happy valentine's dayyy</h1>
 
-  </body>
-</html>
+    <script>
+      const layer = document.getElementById("float-layer");
+      const mainImg = document.getElementById("rizz");
+
+      const floatSources = ["mouse_ballon.jpg", "heart.jpg"];
+
+      function rand(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+
+      function spawnFloat() {
+        const rect = mainImg.getBoundingClientRect();
+
+        // Choose left or right side of main image
+        const side = Math.random() < 0.5 ? "left" : "right";
+
+        // Spawn x near the image side, with a little randomness
+        const gap = rand(15, 40); // distance from image edge
+        const xBase = side === "left" ? rect.left - gap : rect.right + gap;
+
+        // Keep within viewport a bit
+        const xJitter = rand(-30, 30);
+        let x = xBase + xJitter;
+        x = Math.max(10, Math.min(window.innerWidth - 70, x));
+
+        // Spawn y somewhere along the image height (or slightly below)
+        let y = rect.top + rand(0, rect.height);
+        y = Math.max(10, Math.min(window.innerHeight - 70, y));
+
+        const el = document.createElement("img");
+        el.src = floatSources[Math.floor(Math.random() * floatSources.length)];
+        el.className = "float-img";
+
+        // Random size, duration, drift, rotation
+        const size = rand(35, 75);            // px
+        const duration = rand(5.5, 10.5);     // seconds
+        const drift = `${rand(-40, 40).toFixed(0)}px`;
+        const rot = `${rand(-35, 35).toFixed(0)}deg`;
+
+        el.style.width = `${size}px`;
+        el.style.left = `${x}px`;
+        el.style.top = `${y}px`;
+        el.style.animationDuration = `${duration}s`;
+        el.style.setProperty("--drift", drift);
+        el.style.setProperty("--rot", rot);
+
+        layer.appe
